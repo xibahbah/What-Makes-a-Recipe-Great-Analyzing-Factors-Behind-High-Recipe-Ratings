@@ -4,7 +4,7 @@ plugins:
 title: Recipe Ratings Analysis
 description: DSC 80 Final Project
 <iframe
-  src="ratings_histogram.html"
+  src="assets/ratings_histogram.html"
   width="800"
   height="600"
   frameborder="0"
