@@ -1,8 +1,6 @@
 remote_theme: pages-themes/merlot@v0.2.0
 plugins:
-  - jekyll-remote-theme 
-title: Recipe Ratings Analysis
-description: DSC 80 Final Project
+  - jekyll-remote-theme # add this line to the plugins list if you already have one
 
 <iframe
   src="assets/ratings_histogram.html"
