@@ -7,21 +7,20 @@
 
 ## Introduction
 
-Online recipe platforms contain thousands of recipes, but not all are rated equally by users.  
-This project analyzes the **Recipes and Ratings** dataset to understand:
+Online recipe platforms host thousands of user-submitted recipes, each receiving feedback in the form of ratings. While most recipes receive generally positive reviews, there is meaningful variation in how highly recipes are rated. This project investigates the **Recipes and Ratings** dataset to answer the following question:
 
-> **What characteristics of a recipe are associated with higher average user ratings?**
+**What characteristics of a recipe are associated with higher average user ratings?**
 
-Understanding these factors can help home cooks, content creators, and food platforms design better recipes and recommendations.
+Understanding these relationships can help home cooks design better recipes, assist content creators in optimizing engagement, and support platforms in improving recommendation systems.
 
-The dataset contains:
-- **RAW_recipes.csv**: recipe metadata
-- **RAW_interactions.csv**: user ratings
+This project uses two datasets:
+- **RAW_recipes.csv**, which contains recipe-level metadata.
+- **RAW_interactions.csv**, which contains user ratings.
 
-After cleaning and merging, the analysis focuses on:
-- `rating`: average user rating per recipe
-- `minutes`: cooking time
-- `n_ingredients`: number of ingredients
+After cleaning and merging the datasets, the analysis focuses on:
+- `rating`: average user rating per recipe  
+- `minutes`: total cooking time  
+- `n_ingredients`: number of ingredients  
 
 ---
 
@@ -29,14 +28,20 @@ After cleaning and merging, the analysis focuses on:
 
 ### Data Cleaning
 
-To prepare the data:
-- Removed interactions without ratings
-- Computed **average rating per recipe**
-- Merged interaction data with recipe metadata
-- Removed recipes missing key fields (`minutes`, `n_ingredients`, `rating`)
-- Filtered extreme cooking-time outliers (above the 99th percentile)
+The following cleaning steps were performed to ensure valid analysis:
+- Removed interactions without ratings.
+- Computed average rating per recipe.
+- Merged interaction data with recipe metadata.
+- Removed recipes missing key variables (`minutes`, `n_ingredients`, or `rating`).
+- Filtered extreme cooking-time outliers by removing values above the 99th percentile.
 
-Below is the distribution of **average recipe ratings**.
+These steps reflect the data-generating process and prevent extreme or incomplete observations from distorting results.
+
+---
+
+### Univariate Analysis
+
+#### Distribution of Average Recipe Ratings
 
 <iframe
 src="assets/ratings_histogram.html"
@@ -45,14 +50,11 @@ height="600"
 frameborder="0"
 ></iframe>
 
-**Observation:**  
-Most recipes receive high average ratings, with a strong concentration between 4 and 5 stars.
+Most recipes receive high ratings, with a strong concentration between 4 and 5 stars. This motivates examining subtler factors that differentiate highly rated recipes.
 
 ---
 
-### Univariate Analysis
-
-#### Cooking Time Distribution
+#### Distribution of Cooking Time
 
 <iframe
 src="assets/cook_time_histogram.html"
@@ -61,14 +63,13 @@ height="600"
 frameborder="0"
 ></iframe>
 
-**Observation:**  
-Cooking times are heavily right-skewed, with most recipes requiring under one hour.
+Cooking time is heavily right-skewed, with most recipes requiring under one hour and a small number taking significantly longer.
 
 ---
 
 ### Bivariate Analysis
 
-#### Cooking Time vs Rating
+#### Cooking Time vs Average Rating
 
 <iframe
 src="assets/cook_time_vs_rating.html"
@@ -77,12 +78,11 @@ height="600"
 frameborder="0"
 ></iframe>
 
-**Observation:**  
-Ratings remain relatively consistent across cooking times, suggesting longer recipes are not necessarily rated lower.
+Ratings remain relatively stable across cooking times, suggesting longer recipes are not systematically rated higher or lower.
 
 ---
 
-#### Number of Ingredients vs Rating
+#### Number of Ingredients vs Average Rating
 
 <iframe
 src="assets/ingredients_vs_rating.html"
@@ -91,54 +91,58 @@ height="600"
 frameborder="0"
 ></iframe>
 
-**Observation:**  
-Recipes with a moderate number of ingredients tend to achieve slightly higher ratings than very simple or very complex recipes.
+Recipes with a moderate number of ingredients tend to receive slightly higher ratings than very simple or very complex recipes.
 
-## Interesting Aggregates
+---
+
+### Interesting Aggregates
+
 <iframe
 src="assets/ingredient_group_rating.html"
 width="100%"
 height="600"
 frameborder="0"
 ></iframe>
-**Observation:**  
-Recipes with a medium to high number of ingredients tend to receive slightly higher average ratings, suggesting that some complexity is valued by users, while overly simple or overly complex recipes perform worse.
+
+Grouped averages show that recipes with medium-to-high ingredient counts receive marginally higher ratings, suggesting users value some complexity without excessive difficulty.
+
 ---
 
 ## Assessment of Missingness
 
 ### NMAR Analysis
 
-The `rating` column is likely **NMAR (Not Missing At Random)** because users are more likely to leave ratings when they have strong positive or negative experiences. Additional data about user engagement would be required to fully model this missingness mechanism.
+The `rating` column is likely **NMAR (Not Missing At Random)**. Users are more likely to submit ratings when they have strong opinions about a recipe. Additional user-level engagement data would be required to model this missingness as MAR.
+
+---
 
 ### Missingness Dependency
 
-Permutation tests were conducted to analyze whether missing ratings depend on observable recipe attributes. Results indicate that missingness depends on user interaction behavior rather than recipe metadata alone.
+Permutation tests indicate that missing ratings are not strongly dependent on observable recipe attributes such as cooking time or ingredient count, suggesting missingness is driven primarily by user behavior.
 
 ---
 
 ## Hypothesis Testing
 
 **Null Hypothesis:**  
-There is no relationship between cooking time and average recipe rating.
+There is no association between cooking time and average recipe rating.
 
 **Alternative Hypothesis:**  
-Cooking time is associated with differences in average recipe rating.
+Average recipe ratings differ across cooking times.
 
-A permutation test using the difference in mean ratings was conducted at α = 0.05.  
-The resulting p-value suggests insufficient evidence to reject the null hypothesis.
+A permutation test using the difference in mean ratings was conducted at α = 0.05. The resulting p-value provides insufficient evidence to reject the null hypothesis.
 
 ---
 
 ## Framing a Prediction Problem
 
-**Prediction Task:**  
-Predict a recipe’s average rating.
+**Prediction Task:** Predict a recipe’s average rating.
 
-- **Type:** Regression
-- **Response Variable:** `rating`
+- **Type:** Regression  
+- **Response Variable:** `rating`  
 - **Evaluation Metric:** RMSE  
-RMSE was chosen because it penalizes large prediction errors and is appropriate for continuous outcomes.
+
+Only features available at the time a recipe is published are used, ensuring a realistic prediction scenario.
 
 ---
 
@@ -148,30 +152,27 @@ The baseline model uses:
 - `minutes`
 - `n_ingredients`
 
-A linear regression model was trained using a single sklearn pipeline.  
-The baseline model establishes a performance benchmark but shows limited predictive power.
+A linear regression model implemented in a single sklearn pipeline establishes a reference performance level but shows limited predictive power.
 
 ---
 
 ## Final Model
 
 The final model improves upon the baseline by:
-- Log-transforming cooking time
-- Engineering ingredient-count bins
-- Tuning hyperparameters using cross-validation
+- Log-transforming cooking time.
+- Engineering ingredient-count bins.
+- Tuning hyperparameters using cross-validation.
 
-The final model demonstrates improved RMSE relative to the baseline, indicating that feature engineering meaningfully improves predictive performance.
+These changes lead to improved RMSE and better reflect the data-generating process.
 
 ---
 
 ## Fairness Analysis
 
-A fairness analysis was conducted by comparing model performance across groups defined by recipe complexity.  
-A permutation test found no statistically significant performance disparity between groups, suggesting the model behaves fairly with respect to this attribute.
+Model performance was compared across groups defined by recipe complexity using RMSE. A permutation test found no statistically significant difference in performance, suggesting the model behaves fairly with respect to this attribute.
 
 ---
 
 ## Conclusion
 
-This project demonstrates that while recipe ratings are generally high, factors such as ingredient count and preparation time still influence user perception.  
-Future work could incorporate textual recipe features or user-level behavior to further improve predictions.
+Recipe ratings are generally high, but ingredient count shows a subtle relationship with user satisfaction. Cooking time alone does not strongly influence ratings. Future work could incorporate textual recipe features or user review data to further improve predictions.
