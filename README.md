@@ -94,6 +94,15 @@ frameborder="0"
 **Observation:**  
 Recipes with a moderate number of ingredients tend to achieve slightly higher ratings than very simple or very complex recipes.
 
+## Interesting Aggregates
+<iframe
+src="assets/ingredient_group_rating.html"
+width="100%"
+height="600"
+frameborder="0"
+></iframe>
+**Observation:**  
+Recipes with a medium to high number of ingredients tend to receive slightly higher average ratings, suggesting that some complexity is valued by users, while overly simple or overly complex recipes perform worse.
 ---
 
 ## Assessment of Missingness
